@@ -1,0 +1,138 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 263 70% 50%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    --accent: 263 70% 50%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-cyan-400;
+}
+
+.terminal-header {
+  @apply flex items-center gap-1 px-4 py-2 bg-zinc-900 border-b border-zinc-800 rounded-t-lg;
+}
+
+.terminal-header-dot {
+  @apply w-3 h-3 rounded-full;
+}
+
+.terminal-content {
+  @apply p-4 bg-zinc-950 rounded-b-lg font-mono text-sm;
+}
+
+.animated-border {
+  position: relative;
+}
+
+.animated-border::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: inherit;
+  animation: border-pulse 3s infinite;
+  pointer-events: none;
+}
+
+@keyframes border-pulse {
+  0% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}
+
+.grid-background {
+  background-size: 40px 40px;
+  background-image: linear-gradient(to right, rgba(139, 92, 246, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(139, 92, 246, 0.05) 1px, transparent 1px);
+}
+
+.experience-line {
+  @apply absolute left-4 top-0 w-0.5 h-full bg-gradient-to-b from-purple-500 to-cyan-400;
+}
+
+/* Code highlighting */
+code.language-javascript {
+  color: #f8f8f2;
+}
+
+code .keyword {
+  color: #ff79c6;
+}
+
+code .string {
+  color: #f1fa8c;
+}
+
+code .comment {
+  color: #6272a4;
+}
+
+code .function {
+  color: #50fa7b;
+}
+
+/* Hexagon grid animations */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.hex-content {
+  animation: pulse 3s infinite;
+  animation-delay: calc(var(--i) * 0.5s);
+}
