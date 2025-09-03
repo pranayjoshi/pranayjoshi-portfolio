@@ -79,7 +79,10 @@ export default function Home() {
               location="Birmingham, Alabama"
               period="June 2025 - August 2025 (Upcoming)"
               description={[
-                "Will develop and maintain backend services using Golang to support the Members Payment infrastructure.",
+                "Proactively developed Gen AI chatbot using Golang and Ollama, implementing custom vector store, semantic search, and ranking algorithm, delivering 12x cost-efficient solution, earning recognition from VP of Engineering.",
+                "Integrated EBT and non EBT Stripe refunds to core services (orders, payments, digital funds) while also streaming real-time events to Kafka DataLake impacting over 100k+ refund requests/year.",
+                "Developed bulk reorder feature for admin by designing GraphQL mutation for multi-product cart addition.",
+                "Fixed coupon redemption by implementing rollback flow on checkout failures, improving checkout experience."
               ]}
             />
 
