@@ -24,6 +24,8 @@ export default function HeroSection() {
     setCanvasDimensions()
     window.addEventListener("resize", setCanvasDimensions)
 
+    const canvasEl = canvas
+
     // Particle class
     class Particle {
       x: number
@@ -34,8 +36,8 @@ export default function HeroSection() {
       color: string
 
       constructor() {
-        this.x = Math.random() * canvas.width
-        this.y = Math.random() * canvas.height
+        this.x = Math.random() * canvasEl.width
+        this.y = Math.random() * canvasEl.height
         this.size = Math.random() * 3 + 1
         this.speedX = (Math.random() - 0.5) * 0.5
         this.speedY = (Math.random() - 0.5) * 0.5
@@ -46,11 +48,11 @@ export default function HeroSection() {
         this.x += this.speedX
         this.y += this.speedY
 
-        if (this.x < 0 || this.x > canvas.width) {
+        if (this.x < 0 || this.x > canvasEl.width) {
           this.speedX = -this.speedX
         }
 
-        if (this.y < 0 || this.y > canvas.height) {
+        if (this.y < 0 || this.y > canvasEl.height) {
           this.speedY = -this.speedY
         }
       }
