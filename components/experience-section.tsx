@@ -36,10 +36,11 @@ const experience: ExperienceRole[] = [
     featured: true,
     current: true,
     impacts: [
-      { action: "Built", headline: "Query Understanding", metric: "AI" },
-      { action: "Launched", headline: "Fulfillment Agent", metric: "Live" },
+      { action: "Architected", headline: "AI Coding Agent Harness", metric: "MCP" },
+      { action: "Powered", headline: "E-commerce Search", metric: "GenAI" },
+      { action: "Shipped", headline: "AI Cart Builder", metric: "Live" },
     ],
-    stack: ["Go", "LLMs", "Search", "Cache", "Agents"],
+    stack: ["Go", "LLMs", "RAG", "Agents", "Harness"],
   },
   {
     logo: "/logos/shipt.svg",
