@@ -5,6 +5,7 @@ import Image from "next/image"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { ArrowUpRight, Award, Code2, Download, Github, Linkedin, Mail, Medal, Sparkles, Trophy } from "lucide-react"
 import ExperienceSection from "@/components/experience-section"
+import ThemeToggle from "@/components/theme-toggle"
 
 const navItems = [
   { label: "About", href: "#about", angle: -72 },
@@ -23,59 +24,81 @@ type Project = {
   githubUrl?: string
   featured?: boolean
   url?: string
+  image?: string
+  imagePosition?: string
+  imageScale?: number
+  imageOrigin?: string
+  mark?: string
 }
 
 const projects: Project[] = [
+  {
+    title: "Find Research Labs",
+    role: "Founder",
+    url: "https://findresearchlabs.com",
+    image: "/projects/find-research-labs.png",
+    imagePosition: "center",
+    description:
+      "A place for students and researchers to find each other. Compare a lab’s questions, people, and open roles, then take the next step with that context in view.",
+    tags: ["Research", "Matching", "Labs", "Discovery"],
+  },
   {
     title: "CRISPRR.bio",
     role: "Builder",
     featured: true,
     url: "https://crisprr.bio",
     githubUrl: "https://github.com/pranayjoshi",
+    image: "/projects/crisprr.jpg",
+    imagePosition: "center",
+    imageScale: 1.8,
+    imageOrigin: "42% 50%",
+    mark: "CRISPR",
     description:
       "Web platform for CRISPR guide design and Cas9 analysis — guide scoring, off-target search, and export-ready instructions for researchers.",
     tags: ["CRISPR", "Cas9", "Bioinformatics", "Next.js", "Python"],
   },
   {
+    title: "Physlint",
+    role: "Builder",
+    url: "https://physlint.com",
+    githubUrl: "https://github.com/pranayjoshi/physlint",
+    image: "/projects/physlint.png",
+    imagePosition: "center top",
+    description:
+      "Local checks for robot-learning data. Physlint catches broken recordings before they reach training, then writes a CI report with a stable exit code.",
+    tags: ["Python", "Robotics", "LeRobot", "MCAP", "CLI"],
+  },
+  {
     title: "MindBeats",
     role: "Winner, UGAHacks",
     githubUrl: "https://github.com/pranayjoshi/mindbeat",
+    image: "/projects/mindbeats.png",
+    imagePosition: "center top",
+    mark: "EEG",
     description:
       "EEG-based music recommendation system that utilizes real-time brain signals and emotion detection via custom CNN model to generate playlist recommendations.",
     tags: ["Python", "TensorFlow", "Streamlit", "OpenAI API", "EEG", "CNN"],
   },
   {
-    title: "NeuroOS",
-    role: "Founder",
-    url: "https://www.neuroos.xyz/",
-    githubUrl: "https://github.com/pranayjoshi/neuroos",
+    title: "The Game Factory",
+    role: "Builder",
+    githubUrl: "https://github.com/pranayjoshi/The-Game-Factory",
+    image: "/projects/game-factory.jpg",
+    imagePosition: "center top",
     description:
-      "Hardware-agnostic BCI operating system that translates raw EEG into clean intent APIs — like iOS for brain-computer interfaces.",
-    tags: ["BCI", "EEG", "AI", "TypeScript", "SDK", "Accessibility"],
-  },
-  {
-    title: "Neuroscope",
-    role: "Developer",
-    githubUrl: "https://github.com/htil/neuroscope",
-    description:
-      "EEG-powered neurotechnology to perform complex robotic simulation using brain waves and writing commands via Scratch like interface.",
-    tags: ["JavaScript", "Python", "Electron", "BCI", "EEG", "Robotics", "Blockly"],
+      "Describe a game or sketch a level, and it becomes something you can play in the browser. Agents build it, then you can remix it and share it.",
+    tags: ["TypeScript", "Python", "Phaser", "FastAPI", "AI"],
   },
   {
     title: "Lifeline",
     role: "Winner HackUGA 11",
     githubUrl: "https://github.com/pranayjoshi/ugahacks11",
+    image: "/projects/lifeline.jpg",
+    imagePosition: "center",
+    mark: "Voice",
     description:
       "AI-powered second responder that eliminates busy signals during emergencies — ultra-low-latency voice agent in 29+ languages with intelligent dispatch escalation.",
     tags: ["Twilio", "Gemini", "ElevenLabs", "Node.js", "Next.js", "WebSockets"],
-  },
-  {
-    title: "InfraOD",
-    role: "Developer",
-    githubUrl: "https://github.com/pranayjoshi/InfraOD",
-    description:
-      "Infrared-based object detection pipeline powered by YOLOv8 for real-time thermal vision applications.",
-    tags: ["Python", "YOLOv8", "Computer Vision", "OpenCV", "PyTorch"],
   },
 ]
 
@@ -84,7 +107,7 @@ const achievements = [
   { icon: Sparkles, label: "Google Code-in Winner", detail: "Open Source · Global" },
   { icon: Trophy, label: "ACM ICPC Finalist", detail: "Competitive Programming" },
   { icon: Award, label: "4x President's List", detail: "University Honors & Emerging Scholar" },
-  { icon: Medal, label: "2x UGAHacks Winner", detail: "MindBeats · EEG + AI" },
+  { icon: Medal, label: "4x Hackathon Winner", detail: "MindBeats · EEG + AI" },
 ]
 
 const skillGroups = [
@@ -159,6 +182,7 @@ export default function Home() {
   const [activeSection, setActiveSection] = useState("about")
   const isClickScrolling = useRef(false)
   const clickScrollTimeout = useRef<number | undefined>(undefined)
+  const syncActiveSection = useRef<() => void>(() => {})
 
   const sectionNavItems = useMemo(() => navItems.filter((item) => !item.external), [])
 
@@ -173,73 +197,69 @@ export default function Home() {
     window.clearTimeout(clickScrollTimeout.current)
     clickScrollTimeout.current = window.setTimeout(() => {
       isClickScrolling.current = false
+      syncActiveSection.current()
     }, 900)
   }, [])
 
   useEffect(() => {
-    const sectionElements = sectionNavItems
-      .map((item) => document.getElementById(item.href.replace("#", "")))
-      .filter((element): element is HTMLElement => element !== null)
+    const update = () => {
+      if (isClickScrolling.current) return
 
-    if (sectionElements.length === 0) {
-      return undefined
+      const sections = sectionNavItems
+        .map((item) => document.getElementById(item.href.replace("#", "")))
+        .filter((element): element is HTMLElement => element !== null)
+
+      if (sections.length === 0) return
+
+      const marker = window.innerHeight * 0.34
+      let current = sections[0].id
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top <= marker) current = section.id
+      }
+      setActiveSection(current)
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (isClickScrolling.current) {
-          return
-        }
-
-        const visibleSections = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
-
-        if (visibleSections[0]?.target.id) {
-          setActiveSection(visibleSections[0].target.id)
-        }
-      },
-      {
-        root: null,
-        rootMargin: "-25% 0px -55% 0px",
-        threshold: [0, 0.15, 0.35, 0.55, 0.75, 1],
-      },
-    )
-
-    sectionElements.forEach((section) => observer.observe(section))
+    syncActiveSection.current = update
+    update()
+    window.addEventListener("scroll", update, { passive: true })
+    window.addEventListener("resize", update)
 
     return () => {
-      observer.disconnect()
+      window.removeEventListener("scroll", update)
+      window.removeEventListener("resize", update)
       window.clearTimeout(clickScrollTimeout.current)
     }
   }, [sectionNavItems])
 
   return (
-    <main className="min-h-screen bg-[#f9f9f9] text-[#1b1b1b]">
-      <nav className="fixed left-0 right-0 top-0 z-40 border-b border-[#1b1b1b] bg-[#f9f9f9] px-6 py-3 lg:hidden">
+    <main className="min-h-screen bg-[var(--bg)] text-[var(--ink)]">
+      <nav className="fixed left-0 right-0 top-0 z-40 border-b border-[var(--ink)] bg-[var(--bg)] px-6 py-3 lg:hidden">
         <div className="flex items-center justify-between gap-4">
           <a href="#about" className="font-display text-lg font-extrabold uppercase tracking-[-0.04em]">
             Pranay Joshi
           </a>
-          <a
-            href="/resume.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="border border-[#1b1b1b] bg-[#1b1b1b] px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-white"
-          >
-            Resume
-          </a>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <a
+              href="/resume.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="border border-[var(--ink)] bg-[var(--ink)] px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--on-ink)]"
+            >
+              Resume
+            </a>
+          </div>
         </div>
       </nav>
 
-      <aside className="fixed left-0 top-0 z-30 hidden h-screen w-[30vw] min-w-[380px] max-w-[480px] overflow-hidden border-r border-[#1b1b1b] bg-white lg:block">
+      <aside className="fixed left-0 top-0 z-30 hidden h-screen w-[30vw] min-w-[380px] max-w-[480px] overflow-hidden border-r border-[var(--ink)] bg-[var(--surface)] lg:block">
         <div className="grid h-full grid-rows-[auto_1fr_auto] p-16">
           <div>
             <a
               href="https://crisprr.bio"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 text-xs font-bold uppercase tracking-[0.22em] text-[#4c4546] transition-colors hover:text-[#ff3000]"
+              className="inline-flex items-center gap-2.5 text-xs font-bold uppercase tracking-[0.22em] text-[var(--ink-soft)] transition-colors hover:text-[var(--mark)]"
             >
               <span className="blinking-dot" aria-hidden="true" />
               Checkout CRISPRR.bio
@@ -284,21 +304,27 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 border-t border-[#cfc4c5] pt-6 text-xs uppercase tracking-[0.16em] text-[#4c4546]">
-            <a href="mailto:pjoshi6@crimson.ua.edu" className="hover:text-[#ff3000]">
+          <div className="border-t border-[var(--line)] pt-6">
+            <div className="theme-toggle-row">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--ink-soft)]">Theme</p>
+              <ThemeToggle />
+            </div>
+            <div className="grid grid-cols-3 text-xs uppercase tracking-[0.16em] text-[var(--ink-soft)]">
+            <a href="mailto:pjoshi6@crimson.ua.edu" className="hover:text-[var(--mark)]">
               Email
             </a>
-            <a href="https://github.com/pranayjoshi/" target="_blank" rel="noopener noreferrer" className="hover:text-[#ff3000]">
+            <a href="https://github.com/pranayjoshi/" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--mark)]">
               Github
             </a>
             <a
               href="https://linkedin.com/in/pranay-joshi-/"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-[#ff3000]"
+              className="hover:text-[var(--mark)]"
             >
               LinkedIn
             </a>
+            </div>
           </div>
         </div>
       </aside>
@@ -330,7 +356,7 @@ export default function Home() {
                 <p className="about-greeting">Hi, I&apos;m</p>
                 <h2 className="about-name">Pranay Joshi</h2>
                 <p className="about-tagline">
-                  Engineering purpose into intelligent, high-performance systems.
+                  I build backend systems and AI tools.
                 </p>
               </div>
             </div>
@@ -338,28 +364,39 @@ export default function Home() {
 
           <div className="about-body">
             <div className="about-main">
-              <div className="about-bio">
-                <p>
-                  I am driven by the desire to create technology that serves a{" "}
-                  <BioHighlight>clear purpose</BioHighlight>. I focus on developing{" "}
-                  <BioHighlight>scalable backend infrastructure</BioHighlight> and{" "}
-                  <BioHighlight>intelligent, AI-driven applications</BioHighlight> designed to solve{" "}
-                  <BioHighlight>real-world problems</BioHighlight>. By combining{" "}
-                  <BioHighlight>modern engineering</BioHighlight> with <BioHighlight>AI orchestration</BioHighlight>, I
-                  build <BioHighlight>efficient, high-performance solutions</BioHighlight>.
-                </p>
-                <p>
-                  My work spans the intersection of <BioHighlight>complex backend architecture</BioHighlight>,{" "}
-                  <BioHighlight>neurotech</BioHighlight>, and <BioHighlight>genomics</BioHighlight>, where I bridge the
-                  gap between <BioHighlight>technical infrastructure</BioHighlight> and{" "}
-                  <BioHighlight>biological data</BioHighlight> to{" "}
-                  <BioHighlight>push the boundaries of what is possible</BioHighlight>.
-                </p>
+              <p className="about-bio">
+                Neurotech, genomics, and robotics are part of the work. The software has to handle biological data, and the robotics projects have to work alongside the hardware.
+              </p>
+
+              <div className="about-venture">
+                <p className="credential-label">Entrepreneurship</p>
+                <a
+                  className="about-foundry"
+                  href="https://www.hbs.edu/foundry"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="about-foundry-plate">
+                    <Image
+                      src="/logos/hbs-foundry.png"
+                      alt="Harvard Business School Foundry"
+                      width={655}
+                      height={377}
+                      className="about-foundry-logo"
+                    />
+                  </span>
+                  <span className="about-foundry-copy">
+                    <span className="about-foundry-kicker">Accepted</span>
+                    <span className="about-foundry-name">Humans2Machines</span>
+                    <span className="about-foundry-rule" aria-hidden="true" />
+                  </span>
+                  <ArrowUpRight className="about-foundry-arrow" aria-hidden="true" />
+                </a>
               </div>
 
               <div className="about-skills">
                 <div className="about-skills-header">
-                  <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#ff3000]">Technical Index</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.22em] text-[var(--mark)]">Technical Index</p>
                 </div>
                 <div className="about-skills-grid">
                   {skillGroups.map((group) => (
@@ -376,7 +413,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="about-credentials">
+            <div className="about-side">
               <EducationCard />
               <AchievementsCard />
             </div>
@@ -385,18 +422,16 @@ export default function Home() {
 
         <section id="projects" className="portfolio-section">
           <SectionHeading index="02" eyebrow="Projects" title="Ideas, shipped in code." />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="project-grid">
             {projects.map((project, index) => {
               const isFeatured = project.featured === true
               const cardHref = project.url ?? project.githubUrl
-              const hasSeparateGithubLink = Boolean(project.githubUrl && project.url)
+              const hasSeparateGithubLink = Boolean(project.githubUrl && project.url && project.githubUrl !== project.url)
 
               return (
                 <article
                   key={project.title}
-                  className={`group relative border bg-white p-6 transition-colors hover:bg-[#1b1b1b] hover:text-white ${
-                    isFeatured ? "border-[3px] border-[#ff3000]" : "border-[#1b1b1b]"
-                  } ${cardHref ? "cursor-pointer" : ""}`}
+                  className={`project-card ${isFeatured ? "project-card-featured" : ""} ${cardHref ? "project-card-linked" : ""}`}
                 >
                   {cardHref && (
                     <a
@@ -408,24 +443,43 @@ export default function Home() {
                     />
                   )}
                   {isFeatured && (
-                    <span className="absolute left-4 top-0 z-20 inline-flex -translate-y-1/2 items-center gap-2 border border-[#ff3000] bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#ff3000]">
+                    <span className="project-featured">
                       <span className="blinking-dot" aria-hidden="true" />
                       Featured
                     </span>
                   )}
-                  <div className="relative z-10 pointer-events-none">
-                    <div className="mb-8 flex items-start justify-between gap-6">
+                  {project.image ? (
+                    <div className="project-media">
+                      <Image
+                        src={project.image}
+                        alt=""
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 33vw"
+                        className="project-media-image object-cover"
+                        style={{
+                          objectPosition: project.imagePosition ?? "center",
+                          transform: project.imageScale ? `scale(${project.imageScale})` : undefined,
+                          transformOrigin: project.imageOrigin,
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="project-media project-plate" aria-hidden="true">
+                      <span className="project-plate-index">{String(index + 1).padStart(2, "0")}</span>
+                      <span className="project-plate-mark">{project.mark}</span>
+                    </div>
+                  )}
+                  <div className="project-body pointer-events-none relative z-10">
+                    <div className="project-title-row">
                       <div>
-                        <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-[#ff3000]">
+                        <p className="project-kicker">
                           {String(index + 1).padStart(2, "0")} / {project.role}
                         </p>
-                        <h3 className="font-display text-3xl font-bold tracking-[-0.03em]">{project.title}</h3>
+                        <h3 className="project-title">{project.title}</h3>
                       </div>
-                      {cardHref && (
-                        <ArrowUpRight className="h-5 w-5 shrink-0 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-                      )}
+                      {cardHref && <ArrowUpRight className="project-arrow" />}
                     </div>
-                    <p className="line-clamp-4 leading-[1.55] text-[#4c4546] group-hover:text-[#e5e5e5]">{project.description}</p>
+                    <p className="project-copy line-clamp-4">{project.description}</p>
                     {project.githubUrl ? (
                       <a
                         href={project.githubUrl}
@@ -433,17 +487,15 @@ export default function Home() {
                         rel="noopener noreferrer"
                         tabIndex={hasSeparateGithubLink ? 0 : -1}
                         aria-hidden={!hasSeparateGithubLink}
-                        className={`mt-8 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-[#4c4546] transition-colors hover:text-[#ff3000] group-hover:text-[#e5e5e5] group-hover:hover:text-[#ff3000] ${
-                          hasSeparateGithubLink ? "pointer-events-auto relative z-20" : ""
-                        }`}
+                        className={`project-github ${hasSeparateGithubLink ? "pointer-events-auto relative z-20" : ""}`}
                       >
                         <Github className="h-4 w-4" />
                         GitHub
                       </a>
                     ) : null}
-                    <div className="mt-4 flex flex-wrap gap-2">
+                    <div className="project-tags">
                       {project.tags.map((tag) => (
-                        <span key={tag} className="border border-current px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em]">
+                        <span key={tag} className="project-tag">
                           {tag}
                         </span>
                       ))}
@@ -457,31 +509,38 @@ export default function Home() {
 
         <ExperienceSection />
 
-        <section id="research" className="portfolio-section">
-          <SectionHeading index="04" eyebrow="Research" title="Physiological computing for learning and robotics." />
-          <article className="grid gap-10 border border-[#1b1b1b] bg-white p-6 md:grid-cols-[0.95fr_1.05fr] md:p-10">
-            <div>
-              <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-[#ff3000]">{research.date}</p>
-              <h3 className="font-display text-4xl font-bold leading-[1.05] tracking-[-0.035em]">{research.title}</h3>
-              <p className="mt-6 text-sm uppercase tracking-[0.14em] text-[#4c4546]">{research.venue}</p>
+        <section id="research" className="portfolio-section research-section">
+          <header className="research-header">
+            <p className="section-index research-header-label">04 / Research</p>
+            <h2 className="research-heading">Physiological computing for learning and robotics.</h2>
+          </header>
+          <article className="research-card">
+            <div className="research-card-main">
+              <p className="research-date">{research.date}</p>
+              <h3 className="research-paper-title">{research.title}</h3>
+              <p className="research-venue">{research.venue}</p>
               <a
                 href={research.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-8 inline-flex items-center gap-2 border border-[#1b1b1b] bg-[#1b1b1b] px-5 py-3 text-sm font-bold uppercase tracking-[0.14em] text-white hover:bg-[#ff3000] hover:text-white"
+                className="research-link"
               >
-                View Publication <ArrowUpRight className="h-4 w-4" />
+                View Publication <ArrowUpRight className="h-3.5 w-3.5" />
               </a>
             </div>
-            <div className="space-y-6">
-              <InfoBlock label="Authors" title={research.authors.join(", ")} />
-              <InfoBlock label="DOI" title={research.doi} />
-              <p className="text-lg leading-[1.6] text-[#4c4546]">{research.abstract}</p>
-              <div className="flex flex-wrap gap-2">
+            <div className="research-card-meta">
+              <p className="research-meta">
+                <span className="research-meta-label">Authors</span>
+                {research.authors.join(", ")}
+              </p>
+              <p className="research-meta">
+                <span className="research-meta-label">DOI</span>
+                {research.doi}
+              </p>
+              <p className="research-abstract">{research.abstract}</p>
+              <div className="research-keywords">
                 {research.keywords.map((keyword) => (
-                  <span key={keyword} className="border border-[#cfc4c5] px-2.5 py-1 text-xs uppercase tracking-[0.08em]">
-                    {keyword}
-                  </span>
+                  <span key={keyword}>{keyword}</span>
                 ))}
               </div>
             </div>
@@ -500,7 +559,7 @@ export default function Home() {
             href="/resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-10 inline-flex items-center gap-3 border border-[#1b1b1b] bg-[#1b1b1b] px-6 py-4 text-sm font-bold uppercase tracking-[0.16em] text-white hover:bg-[#ff3000]"
+            className="mt-10 inline-flex items-center gap-3 border border-[var(--ink)] bg-[var(--ink)] px-6 py-4 text-sm font-bold uppercase tracking-[0.16em] text-[var(--on-ink)] hover:bg-[var(--mark)]"
           >
             Resume <Download className="h-4 w-4" />
           </a>
@@ -510,26 +569,23 @@ export default function Home() {
   )
 }
 
-function BioHighlight({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="font-semibold text-[#1b1b1b] underline decoration-[#ff3000] decoration-2 underline-offset-[3px]">
-      {children}
-    </span>
-  )
-}
-
 function EducationCard() {
   return (
     <div className="credential-card">
       <p className="credential-label">Education</p>
-      <div className="credential-title-row mt-4">
-        <h3 className="credential-title">The University of Alabama</h3>
-        <span className="credential-title credential-year">&apos;27</span>
+      <div className="education-row">
+        <Image src="/logos/alabama.png" alt="" width={128} height={128} className="education-mark" />
+        <div className="education-copy">
+          <div className="credential-title-row">
+            <h3 className="credential-title">The University of Alabama</h3>
+            <span className="credential-title credential-year">&apos;23 - &apos;27</span>
+          </div>
+          <p className="credential-detail">B.S. Computer Science · Minor in Robotics</p>
+          <p className="credential-detail">
+            <span className="credential-gpa">GPA 4.00/4.00</span>
+          </p>
+        </div>
       </div>
-      <p className="credential-detail">B.S. Computer Science · Minor in Robotics</p>
-      <p className="credential-detail">
-        <span className="credential-gpa">GPA 4.00/4.00</span>
-      </p>
     </div>
   )
 }
@@ -557,21 +613,11 @@ function AchievementsCard() {
 
 function SectionHeading({ index, eyebrow, title }: { index: string; eyebrow: string; title: string }) {
   return (
-    <div className="mb-12 grid gap-6 border-b border-[#1b1b1b] pb-8 md:grid-cols-[0.25fr_0.75fr]">
+    <div className="mb-12 grid gap-6 border-b border-[var(--ink)] pb-8 md:grid-cols-[0.25fr_0.75fr]">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#ff3000]">{index} / {eyebrow}</p>
+        <p className="text-xs font-bold uppercase tracking-[0.22em] text-[var(--mark)]">{index} / {eyebrow}</p>
       </div>
       <h2 className="font-display text-5xl font-extrabold leading-[1] tracking-[-0.045em] md:text-7xl">{title}</h2>
-    </div>
-  )
-}
-
-function InfoBlock({ label, title, children }: { label: string; title: string; children?: React.ReactNode }) {
-  return (
-    <div className="border-t border-[#1b1b1b] pt-4">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#ff3000]">{label}</p>
-      <h3 className="mt-3 font-display text-2xl font-bold tracking-[-0.02em]">{title}</h3>
-      {children && <div className="mt-3 space-y-1 leading-[1.55] text-[#4c4546]">{children}</div>}
     </div>
   )
 }
@@ -592,10 +638,10 @@ function ContactCard({
       href={href}
       target={href.startsWith("http") ? "_blank" : undefined}
       rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-      className="group border border-[#1b1b1b] bg-white p-6 transition-colors hover:bg-[#1b1b1b] hover:text-white"
+      className="group border border-[var(--ink)] bg-[var(--surface)] p-6 transition-colors hover:bg-[var(--ink)] hover:text-[var(--on-ink)]"
     >
       <div className="mb-10 flex items-center justify-between">
-        <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#ff3000]">{label}</span>
+        <span className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--mark)]">{label}</span>
         {icon}
       </div>
       <p className="break-words font-display text-2xl font-bold tracking-[-0.025em]">{value}</p>
