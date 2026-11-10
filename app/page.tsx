@@ -43,7 +43,10 @@ function Hero() {
   return (
     <section className="hero" id="home">
       <h1 aria-label={me.name}>{word("Pranay")}{word("Joshi")}</h1>
-      <p className="lede fade" style={{ ["--d" as string]: ".8s" }}>{me.line}</p>
+      <p className="focus fade" style={{ ["--d" as string]: ".75s" }}>
+        {me.focus.map((f, i) => <span key={f}>{i > 0 && <i aria-hidden>/</i>}{f}</span>)}
+      </p>
+      <p className="lede fade" style={{ ["--d" as string]: ".85s" }}>{me.line}</p>
       <div className="cta fade" style={{ ["--d" as string]: ".95s" }}>
         <a className="btn mark" href="#work">See the work <span>↓</span></a>
         <a className="btn" href={me.resume} {...ext}>Resume <span>↗</span></a>
@@ -74,8 +77,8 @@ function Experience() {
             </div>
           </div>
           <div className="xp-imp">
-            {x.impacts.map(([a, h, m]) => (
-              <div className="imp" key={h}><div className="top"><span>{a}</span>{m && <b>{m}</b>}</div><strong>{h}</strong></div>
+            {x.impacts.map(([a, h, m, d]) => (
+              <div className="imp" key={h}><div className="top"><span>{a}</span>{m && <b>{m}</b>}</div><div><strong>{h}</strong>{d && <p>{d}</p>}</div></div>
             ))}
           </div>
         </article>
@@ -169,7 +172,7 @@ export default function Home() {
           <ProjectDeck />
         </section>
         <section className="sec" id="experience">
-          <SectionHead n="02" label="Experience" title="Where I’ve shipped." note={`${experience.length} roles · 2021 — now`} />
+          <SectionHead n="02" label="Experience" title="Where I’ve shipped." note={`${experience.length} roles · 2021 — 2026`} />
           <Experience />
         </section>
         <section className="sec" id="about">

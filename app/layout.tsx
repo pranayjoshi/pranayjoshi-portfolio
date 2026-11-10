@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 const hanken = Hanken_Grotesk({ subsets: ["latin"], weight: ["500", "700", "800"], variable: "--font-hanken" })
 const mono = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "600"], variable: "--font-mono" })
 
-const description = "Backend and AI engineer. I build software for machines that sense and move: robotics, agents, neurotech and genomics."
+const description = "Physical AI, AI safety, BCI and backend. I build the software behind machines that sense and move, and the checks that keep them safe."
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://pranayjoshi-portfolio.vercel.app"),

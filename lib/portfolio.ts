@@ -2,7 +2,8 @@
 
 export const me = {
   name: "Pranay Joshi",
-  line: "Backend and AI engineer. I build software for machines that sense and move.",
+  focus: ["Physical AI", "AI Safety", "BCI", "Backend"],
+  line: "I build the software behind machines that sense and move, and the checks that keep them safe.",
   email: "pranayjoshi4466@gmail.com",
   uni: "pjoshi6@crimson.ua.edu",
   github: "https://github.com/pranayjoshi/",
@@ -116,40 +117,60 @@ export type Role = {
   location: string
   period: string
   current?: boolean
-  impacts: [string, string, string?][]
+  // [verb, headline, metric?, one-line detail?]
+  impacts: [string, string, string?, string?][]
   stack: string[]
 }
 
 export const experience: Role[] = [
   {
-    logo: "shipt.svg", company: "Shipt", title: "Backend & AI Engineer Intern", subtitle: "Marketplace · Search · Payments",
-    location: "Birmingham, AL", period: "Jun 2026 — Present", current: true,
-    impacts: [["Architected", "AI Coding Agent Harness", "MCP"], ["Powered", "E-commerce Search", "GenAI"], ["Shipped", "AI Cart Builder", "Live"]],
-    stack: ["Go", "LLMs", "RAG", "Agents", "Harness"],
+    logo: "shipt.svg", company: "Shipt", title: "AI Software Engineer Intern", subtitle: "Marketplace · Search · Payments",
+    location: "Birmingham, AL", period: "Jun 2026 — Aug 2026",
+    impacts: [
+      ["Launched", "Ask Shipt", "97%", "AI shopping assistant. Cart building went from ~20 min to 30 s."],
+      ["Architected", "AI Safety & Evals", undefined, "Search red-team guardrails and automated evals catch hallucinations and bias before release."],
+      ["Built", "Coding-Agent Harness", "70%", "Adopted by 70% of engineering teams, with 2\u2060–\u20603× token efficiency."],
+    ],
+    stack: ["Go", "LLMs", "Agents", "Evals", "Elasticsearch"],
   },
   {
-    logo: "shipt.svg", company: "Shipt", title: "Backend Engineer Intern",
+    logo: "shipt.svg", company: "Shipt", title: "Software Engineer Intern", subtitle: "Payments",
     location: "Birmingham, AL", period: "Jun 2025 — Aug 2025",
-    impacts: [["Shipped", "Gen AI Chatbot", "12×"], ["Integrated", "Stripe Refunds", "100K+"], ["Fixed", "Checkout Flow"]],
-    stack: ["Go", "GraphQL", "Kafka", "Stripe"],
+    impacts: [
+      ["Shipped", "GenAI Code Chatbot", "12×", "Go + Ollama across 3,000+ services. VP/CTO recognition and a return offer."],
+      ["Integrated", "Stripe Refunds", "100K+", "Refund requests a year, streamed to the Kafka data lake."],
+      ["Fixed", "Bulk Reorder", undefined, "GraphQL mutations and coupon redemption with checkout rollback."],
+    ],
+    stack: ["Go", "Ollama", "GraphQL", "Kafka", "Stripe"],
   },
   {
-    logo: "caps.png", company: "Center for Advanced Public Safety", title: "Backend Developer",
-    location: "Tuscaloosa, AL", period: "Aug 2024 — Present", current: true,
-    impacts: [["Automated", "ArcGIS Pipeline", "Python"], ["Scaled", "Crash Analytics", "67"], ["Deployed", "SQL Framework", "170+"]],
-    stack: ["Go", "Next.js", "Docker", "SQL"],
+    logo: "caps.png", company: "Center for Advanced Public Safety", title: "Software Engineer",
+    location: "Tuscaloosa, AL", period: "Aug 2024 — May 2025",
+    impacts: [
+      ["Automated", "Geospatial Data Entry", "$100K+", "Saved a year by replacing manual labeling."],
+      ["Built", "eCrash Analytics", "67", "Every Alabama county and 170+ divisions, in Go and Next.js."],
+      ["Deployed", "On AWS", undefined, "Docker, EC2, RDS and IAM, with GraphQL feature extraction."],
+    ],
+    stack: ["Go", "Next.js", "SQL", "GraphQL", "AWS"],
+  },
+  {
+    logo: "alabama.png", company: "Human Tech & Interaction Lab", title: "Research Assistant",
+    location: "Tuscaloosa, AL", period: "Jan 2024 — Dec 2025",
+    impacts: [
+      ["Led", "EEG Desktop Team", undefined, "Live EEG/EMG movement and emotion detection in Electron."],
+      ["Built", "NeuroScope & NeuroBlock", "BCI", "Brain-computer interfaces that steer robots and DJI drones."],
+      ["Co-authored", "PhysioBots", "CHI ’25", "Physiological computing and robotics for K-12, at ACM CHI 2025."],
+    ],
+    stack: ["TensorFlow.js", "React Flow", "Electron", "BCI"],
   },
   {
     logo: "gsoc.svg", company: "Google Summer of Code", title: "Software Developer", subtitle: "Postman · Open Source",
     location: "Remote", period: "May 2024 — Aug 2024",
-    impacts: [["Generated", "Schema CLI", "OSS"], ["Standardized", "JSON Models"]],
-    stack: ["C#", "CLI", "JSON Schema"],
-  },
-  {
-    logo: "alabama.png", company: "Human Tech & Interaction Lab", title: "Research Assistant",
-    location: "Tuscaloosa, AL", period: "Jan 2024 — Present", current: true,
-    impacts: [["Published", "CHI 2025 Paper", "CHI"], ["Built", "Neuroscope BCI", "Live"], ["Trained", "EEG/EMG Platform"]],
-    stack: ["Python", "JS", "Electron", "BCI"],
+    impacts: [
+      ["Built", "Source Generator CLI", "OSS", "Standards-compliant code from JSON Schema for Corvus.JsonSchema."],
+      ["Handled", "Nested References", undefined, "Generated models follow nested schema references."],
+    ],
+    stack: ["C#", ".NET", "CLI", "JSON Schema"],
   },
   {
     logo: "dubverse.jpg", company: "Dubverse", title: "AI Developer",
@@ -176,7 +197,7 @@ export const skills: string[][] = [
 export const research = {
   title: "PhysioBots: Engaging K-12 Students with Physiological Computing and Robotics",
   authors: "Myles Lewis, Pranay Joshi, Wesley Cade Junkins, Vincent Ingram, Chris S. Crawford",
-  venue: "CHI EA ’24 · ACM · May 2024",
+  venue: "CHI EA ’25 · ACM · 2025",
   url: "https://dl.acm.org/doi/10.1145/3706599.3720106",
   keywords: ["Physiological Computing", "Robotics", "EEG", "EMG", "HCI", "K-12"],
 }
